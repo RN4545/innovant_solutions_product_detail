@@ -2,8 +2,11 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:product_detail/app/customWidget/customCircle.dart';
+import 'package:product_detail/app/customWidget/customElevatedButton.dart';
+import 'package:product_detail/app/customWidget/customOutlineButton.dart';
 import 'package:product_detail/app/customWidget/customRectangle.dart';
 import 'package:product_detail/app/modules/product_detail_module/screen_product_controller.dart';
+import 'package:product_detail/app/shared/init.dart';
 import 'package:product_detail/app/utils/AppFont.dart';
 
 class ScreenProductDetail extends GetView<ScreenProductDetailController> {
@@ -20,35 +23,42 @@ class ScreenProductDetail extends GetView<ScreenProductDetailController> {
         ),
       ),
       body: _body(),
+      bottomNavigationBar: _bottomButtons(),
     );
   }
 
   Widget _body() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _imagesSlides(),
-          const SizedBox(
-            height: 20.0,
-          ),
-          _productMetaInfo(),
-          const SizedBox(
-            height: 22.0,
-          ),
-          _colorEyes(),
-          const SizedBox(
-            height: 14.0,
-          ),
-          _otherInfoBox(),
-          const SizedBox(
-            height: 10.0,
-          ),
-          _quantitySelecter()
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _imagesSlides(),
+            const SizedBox(
+              height: 20.0,
+            ),
+            _productMetaInfo(),
+            const SizedBox(
+              height: 22.0,
+            ),
+            _colorEyes(),
+            const SizedBox(
+              height: 14.0,
+            ),
+            _otherInfoBox(),
+            const SizedBox(
+              height: 10.0,
+            ),
+            _quantitySelecter(),
+            const SizedBox(
+              height: 10.0,
+            ),
+            _productInfo()
+          ],
+        ),
       ),
     );
   }
@@ -83,28 +93,26 @@ class ScreenProductDetail extends GetView<ScreenProductDetailController> {
         ),
         const SizedBox(height: 16),
         Obx(
-              () =>
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  controller.imgList.length,
-                      (index) =>
-                      GestureDetector(
-                        onTap: () => controller.animateToPage(index),
-                        child: Container(
-                          width: 10,
-                          height: 10,
-                          margin: const EdgeInsets.symmetric(horizontal: 3),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: controller.currentIndex.value == index
-                                ? Colors.black
-                                : Colors.amber.shade100,
-                          ),
-                        ),
-                      ),
+          () => Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              controller.imgList.length,
+              (index) => GestureDetector(
+                onTap: () => controller.animateToPage(index),
+                child: Container(
+                  width: 10,
+                  height: 10,
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: controller.currentIndex.value == index
+                        ? Colors.black
+                        : Colors.amber.shade100,
+                  ),
                 ),
               ),
+            ),
+          ),
         ),
       ],
     );
@@ -119,11 +127,13 @@ class ScreenProductDetail extends GetView<ScreenProductDetailController> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              "ANESTHESIA",
-              style: Get.textTheme.bodyMedium!
-                  .copyWith(fontWeight: FontWeight.bold, fontSize: font14),
-            ),
+            Obx(() {
+              return Text(
+                Init.instance.brandName.value.toUpperCase(),
+                style: Get.textTheme.bodyMedium!
+                    .copyWith(fontWeight: FontWeight.bold, fontSize: font14),
+              );
+            }),
             Text(
               "3.50 KWD",
               style: Get.textTheme.bodyMedium!
@@ -134,23 +144,27 @@ class ScreenProductDetail extends GetView<ScreenProductDetailController> {
         const SizedBox(
           height: 10.0,
         ),
-        Text(
-          "Once Collection Weekly",
-          style: Get.textTheme.bodyMedium!.copyWith(
-              fontSize: font14,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey.shade400),
-        ),
+        Obx(() {
+          return Text(
+            Init.instance.name.value,
+            style: Get.textTheme.bodyMedium!.copyWith(
+                fontSize: font14,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey.shade400),
+          );
+        }),
         const SizedBox(
           height: 6.0,
         ),
-        Text(
-          "SKU:anesthesia-once-collection-weekly",
-          style: Get.textTheme.bodyMedium!.copyWith(
-              fontSize: font12,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey.shade400),
-        ),
+        Obx(() {
+          return Text(
+            "SKU: ${Init.instance.sku.value}",
+            style: Get.textTheme.bodyMedium!.copyWith(
+                fontSize: font12,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey.shade400),
+          );
+        }),
       ],
     );
   }
@@ -175,8 +189,7 @@ class ScreenProductDetail extends GetView<ScreenProductDetailController> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: List.generate(
             6,
-                (index) =>
-            const CustomCircle(
+            (index) => const CustomCircle(
               borderColor: Colors.black,
             ),
           ),
@@ -279,6 +292,71 @@ class ScreenProductDetail extends GetView<ScreenProductDetailController> {
               ),
             ),
           ],
+        )
+      ],
+    );
+  }
+
+  Widget _productInfo() {
+    return Container(
+      color: Colors.transparent,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "PRODUCT INFORMATION",
+                style: Get.textTheme.bodyMedium!
+                    .copyWith(fontWeight: FontWeight.bold, fontSize: font14),
+              ),
+              const Icon(
+                Icons.keyboard_arrow_down_rounded,
+                size: 30.0,
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 10.0,
+          ),
+          Obx(() {
+            return Text(
+              Init.instance.productDesc.value,
+              style: Get.textTheme.bodyMedium!
+                  .copyWith(fontSize: font12, color: Colors.grey),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _bottomButtons() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: CustomElevatedButton(
+            onTap: () {},
+            btnText: "Add to bag",
+            primaryColor: Colors.black,
+            txtColor: Colors.white,
+            fontSize: font14,
+            btnSize: const Size(double.infinity, 48.0),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
+          child: CustomOutlinedButton(
+            btnSize: const Size(double.infinity, 48.0),
+            onPressed: () {},
+            fontSize: font14,
+            btnText: "Share",
+          ),
         )
       ],
     );

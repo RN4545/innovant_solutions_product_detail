@@ -40,6 +40,7 @@ dependencies:
   http:
   carousel_slider: ^5.1.1
   flutter_svg: ^2.1.0
+  html: ^0.15.6
 
 dev_dependencies:
   flutter_test:
