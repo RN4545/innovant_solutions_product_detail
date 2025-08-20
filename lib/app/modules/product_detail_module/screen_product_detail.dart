@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:product_detail/app/customWidget/customAppBar.dart';
 import 'package:product_detail/app/customWidget/customCircle.dart';
 import 'package:product_detail/app/customWidget/customElevatedButton.dart';
 import 'package:product_detail/app/customWidget/customOutlineButton.dart';
@@ -15,14 +16,28 @@ class ScreenProductDetail extends GetView<ScreenProductDetailController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Once Collection Weekly",
-          style: Get.textTheme.bodyMedium!
-              .copyWith(fontSize: font18, fontWeight: FontWeight.bold),
+      appBar: CustomAppbar(
+        title: Center(
+          child: Text(
+            "Once Collection Weekly",
+            style: Get.textTheme.bodyMedium!
+                .copyWith(fontSize: font14, fontWeight: FontWeight.bold),
+          ),
         ),
+        showBackButton: true,
+        showHeartIcon: true,
+        showShareIcon: true,
+        showShopBagIcon: true,
+        appbarSize: 40.0,
       ),
-      body: _body(),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        return _body();
+      }),
       bottomNavigationBar: _bottomButtons(),
     );
   }
@@ -46,7 +61,7 @@ class ScreenProductDetail extends GetView<ScreenProductDetailController> {
             ),
             _colorEyes(),
             const SizedBox(
-              height: 14.0,
+              height: 24.0,
             ),
             _otherInfoBox(),
             const SizedBox(
@@ -54,7 +69,7 @@ class ScreenProductDetail extends GetView<ScreenProductDetailController> {
             ),
             _quantitySelecter(),
             const SizedBox(
-              height: 10.0,
+              height: 24.0,
             ),
             _productInfo()
           ],
@@ -64,39 +79,41 @@ class ScreenProductDetail extends GetView<ScreenProductDetailController> {
   }
 
   Widget _imagesSlides() {
-    return Column(
-      children: [
-        CarouselSlider.builder(
-          carouselController: controller.sliderController,
-          itemCount: controller.imgList.length,
-          itemBuilder: (context, index, realIdx) {
-            return Container(
-              margin: const EdgeInsets.symmetric(horizontal: 5.0),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12.0),
-                image: DecorationImage(
-                  image: NetworkImage(controller.imgList[index]),
-                  fit: BoxFit.contain,
+    return Obx(() {
+      return Column(
+        children: [
+          CarouselSlider.builder(
+            carouselController: controller.sliderController,
+            // itemCount: controller.imgList.length,
+            itemCount: Init.instance.imageString.length,
+            itemBuilder: (context, index, realIdx) {
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12.0),
+                  image: DecorationImage(
+                    image: NetworkImage(Init.instance.imageString[index]),
+                    fit: BoxFit.contain,
+                  ),
                 ),
-              ),
-            );
-          },
-          options: CarouselOptions(
-            height: 250,
-            viewportFraction: 0.9,
-            enlargeCenterPage: true,
-            enableInfiniteScroll: true,
-            autoPlay: false,
-            autoPlayInterval: const Duration(seconds: 3),
-            onPageChanged: controller.onPageChanged,
+              );
+            },
+            options: CarouselOptions(
+              height: 300,
+              viewportFraction: 1.6,
+              enlargeCenterPage: true,
+              enableInfiniteScroll: true,
+              autoPlay: false,
+              autoPlayInterval: const Duration(seconds: 3),
+              onPageChanged: controller.onPageChanged,
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
-        Obx(
-          () => Row(
+          const SizedBox(height: 16),
+          Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
-              controller.imgList.length,
+              // controller.imgList.length,
+              Init.instance.imageString.length,
               (index) => GestureDetector(
                 onTap: () => controller.animateToPage(index),
                 child: Container(
@@ -107,15 +124,16 @@ class ScreenProductDetail extends GetView<ScreenProductDetailController> {
                     shape: BoxShape.circle,
                     color: controller.currentIndex.value == index
                         ? Colors.black
-                        : Colors.amber.shade100,
+                        : const Color(0xFFBF983F),
+
                   ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 
   Widget _productMetaInfo() {
@@ -185,15 +203,38 @@ class ScreenProductDetail extends GetView<ScreenProductDetailController> {
         const SizedBox(
           height: 10.0,
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: List.generate(
-            6,
-            (index) => const CustomCircle(
-              borderColor: Colors.black,
+        Obx(() {
+          final eyesColorImages = Init.instance.colorEyesImages;
+          if (eyesColorImages.isEmpty) {
+            return const SizedBox();
+          }
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: List.generate(
+                eyesColorImages.length,
+                (index) => Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: CustomCircle(
+                    borderColor: Colors.black,
+                    child: ClipOval(
+                      child: Image.network(
+                        eyesColorImages[index],
+                        width: 40.0,
+                        height: 40.0,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(Icons.error_outline_sharp,
+                                color: Colors.grey),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        }),
       ],
     );
   }
@@ -298,40 +339,50 @@ class ScreenProductDetail extends GetView<ScreenProductDetailController> {
   }
 
   Widget _productInfo() {
-    return Container(
-      color: Colors.transparent,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+    return Obx(() {
+      return Container(
+        color: Colors.transparent,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            InkWell(
+              highlightColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              onTap: () {
+                controller.toggleProductInfo();
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "PRODUCT INFORMATION",
+                    style: Get.textTheme.bodyMedium!.copyWith(
+                        fontWeight: FontWeight.bold, fontSize: font14),
+                  ),
+                  Icon(
+                    controller.isProductInfoExpanded.value
+                        ? Icons.keyboard_arrow_up_rounded
+                        : Icons.keyboard_arrow_down_rounded,
+                    size: 30.0,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(
+              height: 10.0,
+            ),
+            if (controller.isProductInfoExpanded.value)
               Text(
-                "PRODUCT INFORMATION",
+                Init.instance.productDesc.value,
                 style: Get.textTheme.bodyMedium!
-                    .copyWith(fontWeight: FontWeight.bold, fontSize: font14),
+                    .copyWith(fontSize: font12, color: Colors.grey),
               ),
-              const Icon(
-                Icons.keyboard_arrow_down_rounded,
-                size: 30.0,
-              ),
-            ],
-          ),
-          const SizedBox(
-            height: 10.0,
-          ),
-          Obx(() {
-            return Text(
-              Init.instance.productDesc.value,
-              style: Get.textTheme.bodyMedium!
-                  .copyWith(fontSize: font12, color: Colors.grey),
-            );
-          }),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 
   Widget _bottomButtons() {

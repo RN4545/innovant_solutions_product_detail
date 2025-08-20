@@ -7,13 +7,10 @@ class CustomCircle extends StatelessWidget {
 
   final double? width;
   final double? height;
+  final Widget? child;
 
   const CustomCircle(
-      {super.key,
-
-      this.borderColor,
-      this.width,
-      this.height});
+      {super.key, this.borderColor, this.width, this.child, this.height});
 
   @override
   Widget build(BuildContext context) {
@@ -24,11 +21,12 @@ class CustomCircle extends StatelessWidget {
         shape: BoxShape.circle,
         border: Border.all(color: borderColor ?? Colors.white, width: 1.6),
       ),
-      child: const Icon(
-        Icons.error_outline_sharp,
-        size: 24.0,
-        color: Colors.grey,
-      ),
+      child: child ??
+          const Icon(
+            Icons.error_outline_sharp,
+            size: 24.0,
+            color: Colors.grey,
+          ),
     );
   }
 }

@@ -68,6 +68,9 @@ flutter:
     - assets/images/error_icon.png
     - assets/images/tabby_icon.svg
     - assets/images/tabby_new.png
+    - assets/images/heartIcon.png
+    - assets/images/shareIcon.png
+    - assets/images/shoppingBagIcon.png
 
   # To add assets to your application, add an assets section, like this:
 #   assets:
