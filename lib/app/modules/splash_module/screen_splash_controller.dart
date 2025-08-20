@@ -8,7 +8,6 @@ class ScreenSplashController extends GetxController {
     super.onReady();
     Future.delayed(const Duration(seconds: 2), () {
       Get.log("going to next route");
-      // Get.off(() => const ScreenProductDetail());
       Get.offNamed(RouteNames.productDetailScreen);
     });
   }

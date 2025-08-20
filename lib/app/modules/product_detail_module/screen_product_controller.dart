@@ -10,10 +10,12 @@ import '../../shared/init.dart';
 
 class ScreenProductDetailController extends GetxController {
   var currentIndex = 0.obs;
-  var productData = <String, dynamic>{}.obs;
+  var selectedColorIndex = 0.obs;
   var isLoading = true.obs;
   var incrementQuantity = 0.obs;
   var isProductInfoExpanded = false.obs;
+  final List<int> colorToCarouselMap = [0, 2, 4, 6, 8, 10,12,14,16,18,20];
+
   ProductDetails? productDetails;
   final NetworkServiceApi _networkServiceApi = NetworkServiceApi();
   final CarouselSliderController sliderController = CarouselSliderController();
@@ -28,6 +30,14 @@ class ScreenProductDetailController extends GetxController {
   /// to increment the quantity
   void incrementOrder() {
     incrementQuantity++;
+  }
+
+  /// to change the color index
+  void selectColor(int index) {
+    selectedColorIndex.value = index;
+    int carouselIndex = colorToCarouselMap[index];
+    sliderController.animateToPage(carouselIndex);
+    currentIndex.value = carouselIndex;
   }
 
   /// to decrement the quantity
@@ -45,7 +55,13 @@ class ScreenProductDetailController extends GetxController {
   /// slider image
   void onPageChanged(int index, CarouselPageChangedReason reason) {
     currentIndex.value = index;
+    final colorIndex = colorToCarouselMap.indexOf(index);
+    if (colorIndex != -1) {
+      selectedColorIndex.value = colorIndex;
+    }
+    // else do nothing (keep previous selectedColorIndex)
   }
+
 
   /// to animate the slider
   void animateToPage(int index) {
@@ -53,6 +69,7 @@ class ScreenProductDetailController extends GetxController {
       index,
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
+
     );
   }
 
@@ -67,24 +84,46 @@ class ScreenProductDetailController extends GetxController {
       final data = productDetails?.data;
       Init.instance.name.value = data?.name ?? '';
       Init.instance.brandName.value = data?.brandName ?? '';
-      Init.instance.price.value = data?.price ?? '';
+      final rawPrice = data?.price ?? "0";
+      Init.instance.productPrice.value =
+          double.parse(rawPrice).toStringAsFixed(2);
       Init.instance.sku.value = data?.sku ?? '';
       Init.instance.productType.value = data?.type ?? '';
       final descriptionHtml = data?.description ?? '';
       final document = html_parser.parse(descriptionHtml);
       Init.instance.productDesc.value = document.body?.text.trim() ?? '';
       final imagesList = data?.images ?? [];
+      final imagesSlider = data?.configurableOption
+          ?.expand((option) => option.attributes ?? [])
+          .expand((attr) => attr.images ?? [])
+          .map((e) => e.toString())   // cast each item to String
+          .toList() ?? [];
+
       final eyesColorsImages = data?.configurableOption
               ?.expand((option) => option.attributes ?? [])
               .map((attr) => attr.swatchUrl)
               .whereType<String>()
               .toList() ??
           [];
+      final colorNames = data?.configurableOption
+              ?.expand(
+                (option) => option.attributes ?? [],
+              )
+              .map(
+                (attr) => attr.value,
+              )
+              .whereType<String>()
+              .toList() ??
+          [];
+      Init.instance.colorNames.value = colorNames.cast<String>();
+      Init.instance.sliderImages.value = imagesSlider;
+      Get.log("color names : ${Init.instance.colorNames.value}");
+      Get.log("slider images : ${Init.instance.sliderImages.value}");
       Init.instance.imageString.value = imagesList.cast<String>();
       Init.instance.colorEyesImages.value = eyesColorsImages.cast<String>();
     } catch (e) {
       Get.log('Error fetching product details: $e');
-    }finally{
+    } finally {
       isLoading.value = false;
     }
   }

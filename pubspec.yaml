@@ -41,6 +41,10 @@ dependencies:
   carousel_slider: ^5.1.1
   flutter_svg: ^2.1.0
   html: ^0.15.6
+  responsive_framework: ^1.5.1
+
+
+
 
 dev_dependencies:
   flutter_test:
@@ -52,6 +56,11 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
+  flutter_launcher_icons:
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/launcher_icon.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -71,6 +80,9 @@ flutter:
     - assets/images/heartIcon.png
     - assets/images/shareIcon.png
     - assets/images/shoppingBagIcon.png
+    - assets/images/launcher_icon.png
+
+
 
   # To add assets to your application, add an assets section, like this:
 #   assets:

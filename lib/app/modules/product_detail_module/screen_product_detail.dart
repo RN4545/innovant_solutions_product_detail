@@ -85,14 +85,14 @@ class ScreenProductDetail extends GetView<ScreenProductDetailController> {
           CarouselSlider.builder(
             carouselController: controller.sliderController,
             // itemCount: controller.imgList.length,
-            itemCount: Init.instance.imageString.length,
+            itemCount: Init.instance.sliderImages.length,
             itemBuilder: (context, index, realIdx) {
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 5.0),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12.0),
                   image: DecorationImage(
-                    image: NetworkImage(Init.instance.imageString[index]),
+                    image: NetworkImage(Init.instance.sliderImages[index]),
                     fit: BoxFit.contain,
                   ),
                 ),
@@ -113,7 +113,7 @@ class ScreenProductDetail extends GetView<ScreenProductDetailController> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
               // controller.imgList.length,
-              Init.instance.imageString.length,
+              Init.instance.sliderImages.length,
               (index) => GestureDetector(
                 onTap: () => controller.animateToPage(index),
                 child: Container(
@@ -125,7 +125,6 @@ class ScreenProductDetail extends GetView<ScreenProductDetailController> {
                     color: controller.currentIndex.value == index
                         ? Colors.black
                         : const Color(0xFFBF983F),
-
                   ),
                 ),
               ),
@@ -152,11 +151,14 @@ class ScreenProductDetail extends GetView<ScreenProductDetailController> {
                     .copyWith(fontWeight: FontWeight.bold, fontSize: font14),
               );
             }),
-            Text(
-              "3.50 KWD",
-              style: Get.textTheme.bodyMedium!
-                  .copyWith(fontWeight: FontWeight.bold, fontSize: font14),
-            ),
+            Obx(() {
+              return Text(
+                // "3.50 KWD",
+                "${Init.instance.productPrice.value} KWD",
+                style: Get.textTheme.bodyMedium!
+                    .copyWith(fontWeight: FontWeight.bold, fontSize: font14),
+              );
+            }),
           ],
         ),
         const SizedBox(
@@ -167,8 +169,8 @@ class ScreenProductDetail extends GetView<ScreenProductDetailController> {
             Init.instance.name.value,
             style: Get.textTheme.bodyMedium!.copyWith(
                 fontSize: font14,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey.shade400),
+                // fontWeight: FontWeight.bold,
+                color: Colors.grey),
           );
         }),
         const SizedBox(
@@ -180,7 +182,7 @@ class ScreenProductDetail extends GetView<ScreenProductDetailController> {
             style: Get.textTheme.bodyMedium!.copyWith(
                 fontSize: font12,
                 fontWeight: FontWeight.bold,
-                color: Colors.grey.shade400),
+                color: Colors.grey.shade500),
           );
         }),
       ],
@@ -193,13 +195,19 @@ class ScreenProductDetail extends GetView<ScreenProductDetailController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Text(
-          "Color:",
-          style: Get.textTheme.bodyMedium!.copyWith(
-              fontSize: font14,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey),
-        ),
+        Obx(() {
+          final colorNames = Init.instance.colorNames;
+          final selectedIndex = controller.selectedColorIndex.value;
+          String selectedColor =
+              colorNames.isNotEmpty ? colorNames[selectedIndex] : '';
+          return Text(
+            "Color: $selectedColor",
+            style: Get.textTheme.bodyMedium!.copyWith(
+                fontSize: font14,
+                // fontWeight: FontWeight.bold,
+                color: Colors.black54),
+          );
+        }),
         const SizedBox(
           height: 10.0,
         ),
@@ -216,17 +224,24 @@ class ScreenProductDetail extends GetView<ScreenProductDetailController> {
                 eyesColorImages.length,
                 (index) => Padding(
                   padding: const EdgeInsets.only(right: 8.0),
-                  child: CustomCircle(
-                    borderColor: Colors.black,
-                    child: ClipOval(
-                      child: Image.network(
-                        eyesColorImages[index],
-                        width: 40.0,
-                        height: 40.0,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.error_outline_sharp,
-                                color: Colors.grey),
+                  child: InkWell(
+                    onTap: () {
+                      controller.selectColor(index);
+                    },
+                    child: CustomCircle(
+                      borderColor: controller.selectedColorIndex.value == index
+                          ? Colors.grey
+                          : Colors.black,
+                      child: ClipOval(
+                        child: Image.network(
+                          eyesColorImages[index],
+                          width: 40.0,
+                          height: 40.0,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(Icons.error_outline_sharp,
+                                  color: Colors.grey),
+                        ),
                       ),
                     ),
                   ),
@@ -258,7 +273,7 @@ class ScreenProductDetail extends GetView<ScreenProductDetailController> {
           style: Get.textTheme.bodyMedium!.copyWith(
               fontSize: font14,
               fontWeight: FontWeight.bold,
-              color: Colors.grey.shade400),
+              color: Colors.black54),
         ),
         const SizedBox(
           height: 14.0,
@@ -292,13 +307,6 @@ class ScreenProductDetail extends GetView<ScreenProductDetailController> {
               decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border.all(color: Colors.grey.shade200, width: 1.0),
-                  // boxShadow: [
-                  //   BoxShadow(
-                  //       color: Colors.black.withOpacity(0.1),
-                  //       blurRadius: 6,
-                  //       spreadRadius: 2,
-                  //       offset: const Offset(0, 3))
-                  // ],
                   shape: BoxShape.rectangle),
               child: Center(
                 child: Obx(() {
